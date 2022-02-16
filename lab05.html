@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>ФИЛЬТР СОБЕЛЯ</title>
+  <p>Фильтр Собеля</p>
+</head>
+<body>
+<canvas id='lab05_c1' width='500px' height='500px' style="border: 10px groove orange"></canvas>
+<canvas id='lab05_c2' width="500px" height="500px" style="border: 10px groove black"></canvas>
+
+<script>
+  var canvas = document.getElementById('lab05_c1');
+  var ctx = canvas.getContext('2d');
+
+  var w = 350;
+  var h = 350;
+
+  ctx.fillStyle = 'yellow';
+  ctx.fillRect(165, 165, 165, 165);
+
+  var imgData = ctx.getImageData(0, 0, w, h);
+  console.log(imgData.data[(h * 165 + 165) * 4],
+          imgData.data[(h * 165 + 165) * 4 + 1]);
+   var canvas_Sobel = document.getElementById("lab05_c2");
+  var ctx_Sobel = canvas_Sobel.getContext('2d');
+  var imgData_Sobel = imgData;
+
+
+  for (var i = 1; i < h - 1; i++) {
+    for (var j = 1; j < w - 1; j++) {
+// _____________________________________________________
+// |Матрица для x (pixelX):     Матрица для y (pixelY):|
+// | -1 0 1                      -1 -2 -1              |
+// | -2 0 2                       0  0  0              |
+// | -1 0 1                       1  2  1              |
+// |---------------------------------------------------|
+      pixelX = -1*imgData.data[(j - 1) * 4 + (i - 1) * 4 * w]
+              -2*imgData.data[(j - 1) * 4 + i * 4 * w]
+              -1*imgData.data[(j - 1) * 4 + (i + 1) * 4 * w]
+              +1*imgData.data[(j + 1) * 4 + (i - 1) * 4 * w]
+              +2*imgData.data[(j + 1) * 4 + i * 4 * w]
+              +1*imgData.data[(j + 1) * 4 + (i + 1) * 4 * w];
+      
+// транспонируем матрицу для x, выполняя замену i->j и j->i
+      pixelY = -1*imgData.data[(i - 1) * 4 + (j - 1) * 4 * h]
+              -2*imgData.data[(i - 1) * 4 + j * 4 * h]
+              -1*imgData.data[(i - 1) * 4 + (j + 1) * 4 * h]
+              +1*imgData.data[(i + 1) * 4 + (j - 1) * 4 * h]
+              +2*imgData.data[(i + 1) * 4 + j * 4 * h]
+              +1*imgData.data[(i + 1) * 4 + (j + 1) * 4 * h];
+
+      imgData_Sobel.data[j * 4 + i * w * 4 + 3] =
+              Math.sqrt(pixelY * pixelY + pixelX * pixelX);
+    }
+  }
+
+  for (var i = 0; i < 165; i++) {
+    imgData_Sobel.data[i * 4 + i * 200] = 255;
+  }
+  ctx_Sobel.putImageData(imgData_Sobel, 0, 0);
+</script>
+</body>
+</html>
